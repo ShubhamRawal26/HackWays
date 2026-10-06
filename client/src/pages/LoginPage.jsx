@@ -36,6 +36,13 @@ export default function LoginPage() {
     return from && from !== '/' && !from.includes('/login') ? from : '/dashboard';
   };
 
+  // Ensure sign in page is always scrolled to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
+
   // If user is already logged in with complete profile, redirect to dashboard immediately
   useEffect(() => {
     if (user) {

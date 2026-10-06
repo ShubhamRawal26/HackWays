@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
@@ -25,6 +25,22 @@ import AdminSettings from './pages/admin/AdminSettings';
 
 import { UserProtectedRoute, AdminProtectedRoute } from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant',
+    });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+
+  return null;
+}
 
 function PublicLayout({ children }) {
   return (
@@ -68,7 +84,9 @@ function LoginRoute() {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       {/* Public / Participant Routes */}
       <Route path="/" element={<RootRoute />} />
       <Route path="/login" element={<LoginRoute />} />
@@ -167,5 +185,6 @@ export default function App() {
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
