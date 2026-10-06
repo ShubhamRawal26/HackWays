@@ -66,7 +66,8 @@ export default function StudentDashboardPage() {
         user.name &&
         user.phone &&
         (user.institute || user.college) &&
-        user.year
+        user.year &&
+        user.idCardUrl
       );
       if (!isComplete) {
         setProfileModalOpen(true);
@@ -90,7 +91,7 @@ export default function StudentDashboardPage() {
   // --- Form States ---
   // Team Registration Form
   const [teamName, setTeamName] = useState('');
-  const [collegeOrOrg, setCollegeOrOrg] = useState(user?.college || '');
+  const [collegeOrOrg, setCollegeOrOrg] = useState(user?.institute || user?.college || '');
   const [trackPreference, setTrackPreference] = useState('Open Innovation');
   const [members, setMembers] = useState([
     { name: '', email: '', phone: '' },
@@ -1408,7 +1409,20 @@ export default function StudentDashboardPage() {
       {/* Profile Details Modal */}
       <UserDetailsModal
         isOpen={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
+        onClose={() => {
+          const isComplete = Boolean(
+            user?.name &&
+            user?.phone &&
+            (user?.institute || user?.college) &&
+            user?.year &&
+            user?.idCardUrl
+          );
+          if (!isComplete) {
+            navigate('/login');
+          } else {
+            setProfileModalOpen(false);
+          }
+        }}
         onSaved={() => {
           setProfileModalOpen(false);
           loadDashboardData();

@@ -759,7 +759,8 @@ export const authService = {
         user.name &&
         user.phone &&
         (user.college || user.institute) &&
-        user.year
+        user.year &&
+        user.idCardUrl
       );
 
     return {
@@ -773,7 +774,17 @@ export const authService = {
     };
   },
 
-  async completeProfile({ name, email, phone, college, institute, year }) {
+  async completeProfile({
+    name,
+    email,
+    phone,
+    college,
+    institute,
+    year,
+    studentType = 'college',
+    idCardUrl = '',
+    idCardName = '',
+  }) {
     const storedUserStr = localStorage.getItem('org_user');
     if (!storedUserStr) {
       const err = new Error('You must be logged in to update your profile.');
@@ -794,6 +805,9 @@ export const authService = {
       college: resolvedInstitute,
       institute: resolvedInstitute,
       year: year?.trim() || storedUser.year || '',
+      studentType: studentType || storedUser.studentType || 'college',
+      idCardUrl: idCardUrl || storedUser.idCardUrl || '',
+      idCardName: idCardName || storedUser.idCardName || '',
       role: isSuper ? 'superadmin' : (storedUser.role || 'user'),
       isProfileComplete: true,
       updatedAt: new Date().toISOString(),

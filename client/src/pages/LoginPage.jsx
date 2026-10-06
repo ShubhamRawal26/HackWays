@@ -15,6 +15,7 @@ import {
   Users,
   BadgeCheck,
   LogOut,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -50,7 +51,8 @@ export default function LoginPage() {
         user.name &&
         user.phone &&
         (user.institute || user.college) &&
-        user.year
+        user.year &&
+        user.idCardUrl
       );
 
       if (isComplete || isSuperAdmin(user.email)) {
@@ -72,12 +74,13 @@ export default function LoginPage() {
           u.name &&
           u.phone &&
           (u.institute || u.college) &&
-          u.year
+          u.year &&
+          u.idCardUrl
         );
 
         if (!isComplete && !res.isAdmin) {
           setShowModal(true);
-          info('Please complete your details to continue.');
+          info('Please complete your student details & upload ID card to continue.');
         } else {
           success(res.message || 'Welcome back!');
           navigate(getDestination(u), { replace: true });
@@ -166,6 +169,19 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {/* ID verification notice if incomplete */}
+                {!user?.idCardUrl && !isSuperAdmin(user?.email) && (
+                  <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/90 text-[11px] text-amber-900 flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold">Student ID Verification Required</p>
+                      <p className="text-amber-800/80 text-[10px] mt-0.5">
+                        Please upload your School or College Student ID Card to access the dashboard and finalize registration.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -173,12 +189,26 @@ export default function LoginPage() {
                     className="w-full py-3 px-3 rounded-xl border-2 border-primary/20 hover:border-primary bg-primary/5 text-primary font-bold text-xs sm:text-sm transition-all text-center cursor-pointer flex items-center justify-center gap-2"
                   >
                     <User className="w-4 h-4" />
-                    <span>Enter Details</span>
+                    <span>{user?.idCardUrl ? 'Edit Details' : 'Enter Details & ID'}</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => navigate(getDestination(user))}
+                    onClick={() => {
+                      const isComplete = Boolean(
+                        user?.name &&
+                        user?.phone &&
+                        (user?.institute || user?.college) &&
+                        user?.year &&
+                        user?.idCardUrl
+                      );
+                      if (!isComplete && !isSuperAdmin(user?.email)) {
+                        setShowModal(true);
+                        info('Please upload your Student ID Card & complete details to access the dashboard.');
+                      } else {
+                        navigate(getDestination(user));
+                      }
+                    }}
                     className="w-full btn-primary py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all text-center cursor-pointer flex items-center justify-center gap-2"
                   >
                     <span>Dashboard</span>

@@ -27,6 +27,19 @@ export function UserProtectedRoute({ children }) {
     return <Navigate to="/admin/dashboard" replace />;
   }
 
+  // If student profile is incomplete (missing student info or ID card upload), redirect to login to complete profile
+  const isComplete = Boolean(
+    user?.name &&
+    user?.phone &&
+    (user?.institute || user?.college) &&
+    user?.year &&
+    user?.idCardUrl
+  );
+
+  if (!isComplete && !isSuper) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
   return children;
 }
 
