@@ -12,6 +12,24 @@ export const isSuperAdmin = (email) => {
   return SUPER_ADMIN_EMAILS.includes(String(email).trim().toLowerCase());
 };
 
+export const isAuthorizedAdminEmail = (email) => {
+  if (!email) return false;
+  const clean = String(email).trim().toLowerCase();
+  if (isSuperAdmin(clean)) return true;
+  try {
+    const raw = localStorage.getItem('hackways_rtdb_mock_store');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.admins) {
+        return Object.values(parsed.admins).some(
+          (a) => a.email && String(a.email).trim().toLowerCase() === clean
+        );
+      }
+    }
+  } catch {}
+  return false;
+};
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -22,6 +40,8 @@ export const AuthProvider = ({ children }) => {
       const parsed = JSON.parse(cached);
       if (isSuperAdmin(parsed.email)) {
         parsed.role = 'superadmin';
+      } else if (!isAuthorizedAdminEmail(parsed.email)) {
+        parsed.role = 'user';
       }
       return parsed;
     } catch {
@@ -34,6 +54,7 @@ export const AuthProvider = ({ children }) => {
       if (!cached) return null;
       const parsed = JSON.parse(cached);
       if (isSuperAdmin(parsed.email)) return 'superadmin';
+      if (!isAuthorizedAdminEmail(parsed.email)) return 'user';
       return parsed.role || 'user';
     } catch {
       return null;
@@ -59,7 +80,8 @@ export const AuthProvider = ({ children }) => {
         if (res.data.success) {
           const userObj = res.data.user;
           const isSuper = isSuperAdmin(userObj?.email);
-          const assignedRole = isSuper ? 'superadmin' : (res.data.role || userObj?.role || 'user');
+          const isAuthAdmin = isAuthorizedAdminEmail(userObj?.email);
+          const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? (res.data.role || userObj?.role || 'admin') : 'user');
           const updatedUser = { ...userObj, role: assignedRole };
           setUser(updatedUser);
           setRole(assignedRole);
@@ -90,7 +112,8 @@ export const AuthProvider = ({ children }) => {
     const res = await api.post('/auth/verify-otp', payload);
     if (res.data.success) {
       const isSuper = isSuperAdmin(res.data.user?.email);
-      const assignedRole = isSuper ? 'superadmin' : 'user';
+      const isAuthAdmin = isAuthorizedAdminEmail(res.data.user?.email);
+      const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? 'admin' : 'user');
       const updatedUser = { ...res.data.user, role: assignedRole };
       localStorage.setItem('org_token', res.data.token);
       localStorage.setItem('org_user', JSON.stringify(updatedUser));
@@ -100,11 +123,29 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  // Google Sign-In
+  // Google Sign-In (For participants)
   const loginWithGoogle = async () => {
     const res = await api.post('/auth/google');
     if (res.data.success) {
-      const assignedRole = isSuperAdmin(res.data.user?.email) ? 'superadmin' : (res.data.role || 'user');
+      const isSuper = isSuperAdmin(res.data.user?.email);
+      const isAuthAdmin = isAuthorizedAdminEmail(res.data.user?.email);
+      const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? (res.data.role || 'admin') : 'user');
+      const updatedUser = { ...res.data.user, role: assignedRole };
+      localStorage.setItem('org_token', res.data.token);
+      localStorage.setItem('org_user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setRole(assignedRole);
+    }
+    return res.data;
+  };
+
+  // Dedicated Administrator Google Sign-In with Firebase Auth
+  const adminLoginWithGoogle = async () => {
+    const res = await api.post('/auth/admin-google-login');
+    if (res.data.success) {
+      const isSuper = isSuperAdmin(res.data.user?.email);
+      const isAuthAdmin = isAuthorizedAdminEmail(res.data.user?.email);
+      const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? (res.data.user.role || 'admin') : 'admin');
       const updatedUser = { ...res.data.user, role: assignedRole };
       localStorage.setItem('org_token', res.data.token);
       localStorage.setItem('org_user', JSON.stringify(updatedUser));
@@ -118,8 +159,10 @@ export const AuthProvider = ({ children }) => {
   const completeProfile = async (payload) => {
     const res = await api.post('/auth/complete-profile', payload);
     if (res.data.success) {
-      const isSuper = isSuperAdmin(res.data.user?.email || user?.email);
-      const assignedRole = isSuper ? 'superadmin' : (res.data.user?.role || role || 'user');
+      const email = res.data.user?.email || user?.email;
+      const isSuper = isSuperAdmin(email);
+      const isAuthAdmin = isAuthorizedAdminEmail(email);
+      const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? (res.data.user?.role || role || 'admin') : 'user');
       const updatedUser = { ...res.data.user, role: assignedRole };
       setUser(updatedUser);
       setRole(assignedRole);
@@ -128,11 +171,13 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  // Admin login with email & password
+  // Admin login fallback
   const adminLogin = async (credentials) => {
     const res = await api.post('/auth/admin-login', credentials);
     if (res.data.success) {
-      const assignedRole = isSuperAdmin(res.data.user?.email) ? 'superadmin' : (res.data.user.role || 'admin');
+      const isSuper = isSuperAdmin(res.data.user?.email);
+      const isAuthAdmin = isAuthorizedAdminEmail(res.data.user?.email);
+      const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? (res.data.user.role || 'admin') : 'user');
       const updatedUser = { ...res.data.user, role: assignedRole };
       localStorage.setItem('org_token', res.data.token);
       localStorage.setItem('org_user', JSON.stringify(updatedUser));
@@ -146,8 +191,10 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (data) => {
     const res = await api.put('/auth/profile', data);
     if (res.data.success) {
-      const isSuper = isSuperAdmin(res.data.user?.email || user?.email);
-      const assignedRole = isSuper ? 'superadmin' : (res.data.user?.role || user?.role || 'user');
+      const email = res.data.user?.email || user?.email;
+      const isSuper = isSuperAdmin(email);
+      const isAuthAdmin = isAuthorizedAdminEmail(email);
+      const assignedRole = isSuper ? 'superadmin' : (isAuthAdmin ? (res.data.user?.role || user?.role || 'admin') : 'user');
       const updatedUser = { ...res.data.user, role: assignedRole };
       setUser(updatedUser);
       localStorage.setItem('org_user', JSON.stringify(updatedUser));
@@ -163,12 +210,9 @@ export const AuthProvider = ({ children }) => {
     setRole(null);
   };
 
-  const isAdmin =
-    role === 'admin' ||
-    role === 'superadmin' ||
-    user?.role === 'admin' ||
-    user?.role === 'superadmin' ||
-    isSuperAdmin(user?.email);
+  // STRICT SECURITY CHECK:
+  // A user is ONLY an admin if their verified email matches an authorized admin email.
+  const isAdmin = Boolean(user?.email && isAuthorizedAdminEmail(user.email));
 
   return (
     <AuthContext.Provider
@@ -177,10 +221,12 @@ export const AuthProvider = ({ children }) => {
         role,
         isAdmin,
         isSuperAdminEmail: isSuperAdmin,
+        isAuthorizedAdminEmail,
         loading,
         sendOTP,
         verifyOTP,
         loginWithGoogle,
+        adminLoginWithGoogle,
         completeProfile,
         adminLogin,
         updateProfile,

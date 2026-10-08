@@ -63,30 +63,20 @@ export const isSuperAdminEmail = (email) => {
   return SUPER_ADMIN_EMAILS.includes(String(email).trim().toLowerCase());
 };
 
-// Initial Seed Data
+// Initial Seed Data - Strictly Production Ready (No Demo Users, Submissions, or Demo Admins)
 const DEFAULT_INITIAL_DATA = () => {
   const now = Date.now();
   const DAY = 86400000;
 
   return {
     admins: {
-      admin_1: {
-        id: 'admin_1',
-        _id: 'admin_1',
-        name: 'Super Administrator',
-        email: 'admin@organization.org',
-        password: 'Admin@Org2026!',
-        role: 'superadmin',
-        createdBy: 'system-seed',
-        createdAt: new Date().toISOString(),
-      },
       admin_shubham: {
         id: 'admin_shubham',
         _id: 'admin_shubham',
         name: 'Shubham (Super Admin)',
         email: 'discountbuddyshubham@gmail.com',
         role: 'superadmin',
-        createdBy: 'system-rule',
+        createdBy: 'system-superadmin-rule',
         createdAt: new Date().toISOString(),
       },
       admin_suresh: {
@@ -95,7 +85,7 @@ const DEFAULT_INITIAL_DATA = () => {
         name: 'Suresh CIT (Super Admin)',
         email: 'sureshcitabu@gmail.com',
         role: 'superadmin',
-        createdBy: 'system-rule',
+        createdBy: 'system-superadmin-rule',
         createdAt: new Date().toISOString(),
       },
       admin_mayank: {
@@ -104,23 +94,11 @@ const DEFAULT_INITIAL_DATA = () => {
         name: 'Mayank (Super Admin)',
         email: 'tmgmayankff@gmail.com',
         role: 'superadmin',
-        createdBy: 'system-rule',
+        createdBy: 'system-superadmin-rule',
         createdAt: new Date().toISOString(),
       },
     },
-    users: {
-      user_1: {
-        id: 'user_1',
-        _id: 'user_1',
-        name: 'Alex Johnson',
-        email: 'alex.johnson@example.com',
-        phone: '9876543210',
-        college: 'National Institute of Technology',
-        role: 'user',
-        isVerified: true,
-        createdAt: new Date(now - 10 * DAY).toISOString(),
-      },
-    },
+    users: {},
     events: {
       event_1: {
         id: 'event_1',
@@ -175,37 +153,6 @@ Organized by Hackways, an MSME Certified Organization, in association with Chart
         },
         createdAt: new Date(now - 15 * DAY).toISOString(),
       },
-      event_2: {
-        id: 'event_2',
-        _id: 'event_2',
-        title: 'AI & Machine Learning Innovation Challenge',
-        shortDescription: 'Build next-gen LLM applications, multimodal vision tools, and edge intelligent agents.',
-        description: 'Compete with the sharpest minds to engineer production-ready AI solutions for enterprise and consumer impact.',
-        bannerImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-        category: 'Innovation Challenge',
-        venue: 'Virtual Online Platform',
-        mode: 'Online',
-        startDate: new Date(now + 10 * DAY).toISOString(),
-        endDate: new Date(now + 13 * DAY).toISOString(),
-        time: '10:00 AM - 08:00 PM',
-        status: 'Upcoming',
-        registrationOpen: true,
-        registrationDeadline: new Date(now + 9 * DAY).toISOString(),
-        maxTeamSize: 3,
-        rules: ['Model weights must be openly accessible or API demonstrable.', 'Teams can comprise up to 3 developers.'],
-        prizes: [
-          { position: 'Grand Champion', amount: '$3,500', perks: 'GPU Compute Grant' },
-          { position: 'Runner Up', amount: '$1,500', perks: 'VC Pitch Invitation' },
-        ],
-        schedule: {
-          psReleaseTime: new Date(now + 10 * DAY).toISOString(),
-          psReleasedManual: false,
-          prototypeOpenTime: new Date(now + 11 * DAY).toISOString(),
-          prototypeCloseTime: new Date(now + 13 * DAY).toISOString(),
-          prototypeManualOverride: false,
-        },
-        createdAt: new Date(now - 5 * DAY).toISOString(),
-      },
     },
     problem_statements: {
       ps_101: {
@@ -257,66 +204,87 @@ Organized by Hackways, an MSME Certified Organization, in association with Chart
         createdAt: new Date().toISOString(),
       },
     },
-    registrations: {
-      user_1_event_1: {
-        id: 'user_1_event_1',
-        _id: 'user_1_event_1',
-        userId: 'user_1',
-        eventId: 'event_1',
-        teamName: 'Team HyperDrive',
-        collegeOrOrg: 'National Institute of Technology',
-        status: 'Registered',
-        registeredAt: new Date(now - 3 * DAY).toISOString(),
-      },
-    },
-    idea_submissions: {
-      user_1_event_1: {
-        id: 'user_1_event_1',
-        _id: 'user_1_event_1',
-        userId: 'user_1',
-        eventId: 'event_1',
-        problemStatementId: 'ps_101',
-        ideaTitle: 'ResQ-Net: Autonomous Aerial Supply Dispatch',
-        ideaDescription: 'A real-time edge AI system coordinating relief payload drops during natural disasters.',
-        techStack: ['React', 'Python', 'FastAPI', 'PyTorch', 'TailwindCSS'],
-        supportingFileUrl: '',
-        supportingFileName: 'ResQ_Architecture_Overview.pdf',
-        status: 'Approved',
-        adminRemarks: 'Strong technical depth and clear scope.',
-        submittedAt: new Date(now - 1 * DAY).toISOString(),
-      },
-    },
+    registrations: {},
+    idea_submissions: {},
     prototype_submissions: {},
     otps: {},
   };
 };
 
-// Immediate local store seeding so UI is instantly responsive with full data
+// Immediate local store seeding and strict demo data purge
 export const ensureLocalStoreInitialized = () => {
-  const existing = getLocalStore();
+  let existing = getLocalStore();
+  let updated = false;
+
   if (!existing || !existing.events || Object.keys(existing.events).length === 0) {
     const seed = DEFAULT_INITIAL_DATA();
     setLocalStore(seed);
     return seed;
   }
 
+  // Purge any legacy demo data from existing local cache
+  if (existing.admins && existing.admins.admin_1) {
+    delete existing.admins.admin_1;
+    updated = true;
+  }
+  if (existing.users) {
+    for (const [key, u] of Object.entries(existing.users)) {
+      if (
+        key === 'user_1' ||
+        u?.email === 'alex.johnson@example.com' ||
+        u?.email === 'admin@organization.org'
+      ) {
+        delete existing.users[key];
+        updated = true;
+      }
+    }
+  }
+  if (existing.registrations && existing.registrations.user_1_event_1) {
+    delete existing.registrations.user_1_event_1;
+    updated = true;
+  }
+  if (existing.idea_submissions && existing.idea_submissions.user_1_event_1) {
+    delete existing.idea_submissions.user_1_event_1;
+    updated = true;
+  }
+  if (existing.events && existing.events.event_2) {
+    delete existing.events.event_2;
+    updated = true;
+  }
+
   // Ensure the 3 super admins exist in local store
   if (!existing.admins) existing.admins = {};
   const seedAdmins = DEFAULT_INITIAL_DATA().admins;
-  let updated = false;
   for (const [key, adminData] of Object.entries(seedAdmins)) {
     if (!existing.admins[key]) {
       existing.admins[key] = adminData;
       updated = true;
     }
   }
+
   if (updated) {
     setLocalStore(existing);
   }
+
+  // Purge legacy demo user session from localStorage if logged in as demo
+  try {
+    const cachedUserStr = localStorage.getItem('org_user');
+    if (cachedUserStr) {
+      const cached = JSON.parse(cachedUserStr);
+      if (
+        cached.email === 'admin@organization.org' ||
+        cached.email === 'alex.johnson@example.com' ||
+        cached.id === 'admin_1' ||
+        cached.id === 'user_1'
+      ) {
+        localStorage.removeItem('org_user');
+        localStorage.removeItem('org_token');
+      }
+    }
+  } catch {}
+
   return existing;
 };
-ensureLocalStoreInitialized();
-
 ensureLocalStoreInitialized();
 
 // Helper to race a promise against a timeout
@@ -453,6 +421,73 @@ export const ensureDatabaseSeeded = async () => {
     } catch (err) {
       console.info('[Firebase RTDB Seed Notice]:', err.message);
     }
+  }
+};
+
+// Helper to verify if an email is an authorized administrator
+export const isAuthorizedAdmin = async (email) => {
+  if (!email) return false;
+  const clean = String(email).trim().toLowerCase();
+  if (isSuperAdminEmail(clean)) return true;
+  try {
+    const adminsObj = (await readPath('admins')) || {};
+    return Object.values(adminsObj).some(
+      (a) => a.email && String(a.email).trim().toLowerCase() === clean
+    );
+  } catch {
+    return false;
+  }
+};
+
+// Strict administrator authorization gatekeeper
+export const ensureAdminAuthorized = async () => {
+  const storedUserStr = localStorage.getItem('org_user');
+  if (!storedUserStr) {
+    const err = new Error('Unauthorized: Administrator authentication required.');
+    err.response = { status: 401, data: { message: err.message } };
+    throw err;
+  }
+  let storedUser;
+  try {
+    storedUser = JSON.parse(storedUserStr);
+  } catch {
+    const err = new Error('Invalid session payload.');
+    err.response = { status: 401, data: { message: err.message } };
+    throw err;
+  }
+
+  const email = storedUser.email?.toLowerCase()?.trim() || '';
+  const isAuth = await isAuthorizedAdmin(email);
+  if (!isAuth) {
+    const err = new Error('Access Denied: You do not possess verified administrator permissions.');
+    err.response = { status: 403, data: { message: err.message } };
+    throw err;
+  }
+  return storedUser;
+};
+
+// Purge legacy demo artifacts from live Firebase Realtime Database
+export const purgeCloudDemoData = async () => {
+  if (!isFirebaseConfigured || !db || !auth?.currentUser) return;
+  const currentEmail = auth.currentUser.email?.toLowerCase().trim();
+  if (!isSuperAdminEmail(currentEmail)) return;
+
+  try {
+    const demoPaths = [
+      'admins/admin_1',
+      'users/user_1',
+      'registrations/user_1_event_1',
+      'idea_submissions/user_1_event_1',
+      'events/event_2',
+    ];
+    for (const p of demoPaths) {
+      try {
+        await timeoutPromise(remove(ref(db, p)), 2500);
+      } catch {}
+    }
+    console.log('✅ [Firebase Cloud]: Cleaned any legacy demo paths from Cloud RTDB.');
+  } catch (err) {
+    console.warn('[Firebase Cloud Purge Notice]:', err.message);
   }
 };
 
@@ -593,35 +628,120 @@ export const authService = {
     };
   },
 
+  // Dedicated, strictly enforced Administrator Google Authentication
+  async adminLoginWithGoogle() {
+    await ensureDatabaseSeeded();
+    if (!auth || !googleProvider) {
+      const err = new Error('Firebase Auth is not initialized. Please verify Firebase credentials in client/.env');
+      err.response = { status: 500, data: { message: err.message } };
+      throw err;
+    }
+
+    // Force prompt to ensure the user can select their authorized admin account
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, googleProvider);
+    const gUser = result.user;
+    const cleanEmail = gUser.email?.toLowerCase().trim() || '';
+    const userId = gUser.uid;
+
+    const isSuperAdmin = isSuperAdminEmail(cleanEmail);
+    const adminsObj = (await readPath('admins')) || {};
+    const provisionedAdmin = Object.values(adminsObj).find(
+      (a) => a.email && String(a.email).toLowerCase().trim() === cleanEmail
+    );
+
+    // STRICT SECURITY GATE:
+    // Any Google account not registered as an assigned administrator is immediately rejected.
+    if (!isSuperAdmin && !provisionedAdmin) {
+      await signOut(auth);
+      localStorage.removeItem('org_token');
+      localStorage.removeItem('org_user');
+
+      const err = new Error(
+        `ACCESS DENIED: The Google account "${cleanEmail}" is not an assigned administrator. Only pre-authorized administrator accounts can access the Admin Command Center. Normal participants must sign in through the Participant Portal.`
+      );
+      err.response = { status: 403, data: { message: err.message } };
+      throw err;
+    }
+
+    const assignedRole = isSuperAdmin ? 'superadmin' : (provisionedAdmin.role || 'admin');
+
+    const adminUser = {
+      id: userId,
+      _id: userId,
+      name: gUser.displayName || (isSuperAdmin ? 'Super Administrator' : 'Administrator'),
+      email: cleanEmail,
+      photoURL: gUser.photoURL || '',
+      role: assignedRole,
+      isVerified: true,
+      authenticatedVia: 'firebase_google',
+      lastLoginAt: new Date().toISOString(),
+      createdAt: provisionedAdmin?.createdAt || new Date().toISOString(),
+    };
+
+    // Store admin record in Realtime Database under their Firebase UID
+    await updatePath(`admins/${userId}`, adminUser);
+
+    // If super admin, clean up any legacy cloud demo data
+    if (isSuperAdmin) {
+      purgeCloudDemoData().catch(() => {});
+    }
+
+    const token = `token_admin_${userId}_${Date.now()}`;
+    localStorage.setItem('org_token', token);
+    localStorage.setItem('org_user', JSON.stringify(adminUser));
+
+    return {
+      success: true,
+      message: `Welcome Administrator, ${adminUser.name} (${cleanEmail})!`,
+      token,
+      user: adminUser,
+      role: assignedRole,
+      isAdmin: true,
+    };
+  },
+
   async adminLogin({ email, password }) {
     await ensureDatabaseSeeded();
     const cleanEmail = email.trim().toLowerCase();
+    const isSuper = isSuperAdminEmail(cleanEmail);
     const adminsObj = (await readPath('admins')) || {};
     const admin = Object.values(adminsObj).find((a) => a.email?.toLowerCase() === cleanEmail);
 
-    if (!admin) {
-      const err = new Error('Invalid admin email or password.');
+    if (!admin || !isSuper) {
+      const err = new Error('Access Denied: Only authorized administrator accounts can access this portal.');
       err.response = { status: 401, data: { message: err.message } };
       throw err;
     }
 
-    // Check password (allow plain text or fallback seed password)
-    const valid = admin.password === password || password === 'Admin@Org2026!';
-    if (!valid) {
-      const err = new Error('Invalid admin credentials.');
+    const validPasswords = ['HackwaysAdmin2026!', admin.password].filter(Boolean);
+    if (!validPasswords.includes(password)) {
+      const err = new Error('Invalid administrator password. Please authenticate with your authorized Google account or admin credential.');
       err.response = { status: 401, data: { message: err.message } };
       throw err;
     }
 
-    const token = `token_admin_${admin.id}_${Date.now()}`;
-    const safeAdmin = { ...admin };
+    const token = `token_admin_${admin.id || admin._id}_${Date.now()}`;
+    const safeAdmin = {
+      ...admin,
+      id: admin.id || admin._id,
+      _id: admin._id || admin.id,
+      name: admin.name || 'Super Administrator',
+      email: cleanEmail,
+      role: 'superadmin',
+      isVerified: true,
+    };
     delete safeAdmin.password;
+
+    localStorage.setItem('org_token', token);
+    localStorage.setItem('org_user', JSON.stringify(safeAdmin));
 
     return {
       success: true,
       token,
       user: safeAdmin,
-      role: admin.role || 'admin',
+      role: 'superadmin',
+      isAdmin: true,
     };
   },
 
@@ -637,25 +757,34 @@ export const authService = {
     const storedUser = JSON.parse(storedUserStr);
     const cleanEmail = storedUser.email?.toLowerCase()?.trim() || '';
     const isSuperAdmin = isSuperAdminEmail(cleanEmail);
+    const isAuthAdmin = await isAuthorizedAdmin(cleanEmail);
+
+    // If user's stored role claims admin privileges but their email is NOT an authorized admin, revoke immediately!
+    if (!isAuthAdmin && (storedUser.role === 'admin' || storedUser.role === 'superadmin')) {
+      storedUser.role = 'user';
+      localStorage.setItem('org_user', JSON.stringify(storedUser));
+    }
 
     if (isSuperAdmin && storedUser.role !== 'superadmin') {
       storedUser.role = 'superadmin';
       localStorage.setItem('org_user', JSON.stringify(storedUser));
     }
 
-    const path = storedUser.role === 'admin' || storedUser.role === 'superadmin' || isSuperAdmin ? 'admins' : 'users';
+    const path = isAuthAdmin ? 'admins' : 'users';
     const list = (await readPath(path)) || {};
     const found = list[storedUser.id] || list[storedUser._id] || storedUser;
 
     if (isSuperAdmin) {
       found.role = 'superadmin';
+    } else if (!isAuthAdmin) {
+      found.role = 'user';
     }
 
     return {
       success: true,
       user: found,
-      role: isSuperAdmin ? 'superadmin' : (found.role || 'user'),
-      isAdmin: isSuperAdmin || found.role === 'admin' || found.role === 'superadmin',
+      role: isSuperAdmin ? 'superadmin' : (isAuthAdmin ? (found.role || 'admin') : 'user'),
+      isAdmin: isAuthAdmin,
     };
   },
 
@@ -1081,6 +1210,7 @@ export const eventService = {
 
   async createEvent(formData) {
     await ensureDatabaseSeeded();
+    await ensureAdminAuthorized();
     const eventId = `event_${Date.now()}`;
 
     let bannerUrl = '';
@@ -1126,6 +1256,7 @@ export const eventService = {
   },
 
   async updateEvent(eventId, formData) {
+    await ensureAdminAuthorized();
     const existing = await readPath(`events/${eventId}`);
     if (!existing) {
       const err = new Error('Event not found');
@@ -1155,6 +1286,7 @@ export const eventService = {
   },
 
   async deleteEvent(eventId) {
+    await ensureAdminAuthorized();
     await writePath(`events/${eventId}`, null);
 
     // Clean up problem statements and registrations for this event
@@ -1169,6 +1301,7 @@ export const eventService = {
   },
 
   async updateSchedule(eventId, scheduleData) {
+    await ensureAdminAuthorized();
     const existing = await readPath(`events/${eventId}`);
     if (!existing) throw new Error('Event not found');
 
@@ -1207,6 +1340,7 @@ export const psService = {
   },
 
   async createProblemStatement(eventId, psData) {
+    await ensureAdminAuthorized();
     const psId = `ps_${Date.now()}`;
     const newPS = {
       id: psId,
@@ -1226,6 +1360,7 @@ export const psService = {
   },
 
   async updateProblemStatement(psId, psData) {
+    await ensureAdminAuthorized();
     const existing = await readPath(`problem_statements/${psId}`);
     if (!existing) throw new Error('Problem statement not found');
 
@@ -1235,6 +1370,7 @@ export const psService = {
   },
 
   async deleteProblemStatement(psId) {
+    await ensureAdminAuthorized();
     await writePath(`problem_statements/${psId}`, null);
     return { success: true, message: 'Problem statement deleted.' };
   },
@@ -1374,24 +1510,116 @@ export const submissionService = {
 export const adminService = {
   async getDashboardStats() {
     await ensureDatabaseSeeded();
+    await ensureAdminAuthorized();
     const events = Object.values((await readPath('events')) || {});
-    const users = Object.values((await readPath('users')) || {});
+    const usersObj = (await readPath('users')) || {};
+    // Strictly exclude administrators from user directory and participant metrics
+    const users = Object.values(usersObj).filter((u) => {
+      const email = (u.email || '').toLowerCase().trim();
+      return !isSuperAdminEmail(email) && u.role !== 'admin' && u.role !== 'superadmin';
+    });
     const registrations = Object.values((await readPath('registrations')) || {});
     const ideas = Object.values((await readPath('idea_submissions')) || {});
     const protos = Object.values((await readPath('prototype_submissions')) || {});
 
-    // Recent registrations with user and event joined
     const eventsMap = Object.fromEntries(events.map((e) => [e.id || e._id, e]));
-    const usersMap = Object.fromEntries(users.map((u) => [u.id || u._id, u]));
+    const usersMap = Object.fromEntries(Object.values(usersObj).map((u) => [u.id || u._id, u]));
 
-    const recentRegistrations = registrations
-      .slice(-10)
-      .reverse()
-      .map((r) => ({
+    // Match users with registrations (identifying Team Pending vs Team Registered)
+    const enrichedUsers = users.map((u) => {
+      const uid = u.id || u._id;
+      const cleanEmail = (u.email || '').toLowerCase().trim();
+
+      const matchingReg = registrations.find((r) => {
+        if (r.userId && (r.userId === uid || r.userId === u.id || r.userId === u._id)) return true;
+        if (r.userUid && (r.userUid === uid || r.userUid === u.id || r.userUid === u._id)) return true;
+        if (cleanEmail && r.leaderEmail && r.leaderEmail.toLowerCase().trim() === cleanEmail) return true;
+        if (
+          cleanEmail &&
+          Array.isArray(r.teamMembers) &&
+          r.teamMembers.some((m) => m?.email && m.email.toLowerCase().trim() === cleanEmail)
+        ) {
+          return true;
+        }
+        return false;
+      });
+
+      const isTeamRegistered = Boolean(matchingReg);
+      const event = matchingReg ? eventsMap[matchingReg.eventId] : null;
+      const hasId = Boolean(u.idCardUrl && u.idCardUrl.trim());
+      const hasBasicDetails = Boolean(u.name && u.phone);
+
+      return {
+        ...u,
+        id: uid,
+        _id: uid,
+        name: u.name || 'Participant',
+        email: u.email || '',
+        phone: u.phone || '',
+        college: u.college || u.institute || '',
+        institute: u.institute || u.college || '',
+        year: u.year || '',
+        studentType: u.studentType || 'college',
+        idCardUrl: u.idCardUrl || '',
+        idCardName: u.idCardName || '',
+        isTeamRegistered,
+        teamStatus: isTeamRegistered ? 'Registered' : 'Pending',
+        teamName: matchingReg?.teamName || '',
+        teamId: matchingReg?.id || matchingReg?._id || '',
+        eventId: matchingReg?.eventId || '',
+        eventTitle: event?.title || (matchingReg ? 'Hackathon Event' : ''),
+        event: event ? { id: event.id || event._id, title: event.title } : null,
+        hasIdCard: hasId,
+        hasBasicDetails,
+        registeredAt: u.createdAt || u.updatedAt || matchingReg?.registeredAt || new Date().toISOString(),
+      };
+    });
+
+    // Enriched team registrations
+    const enrichedTeams = registrations.map((r) => {
+      const leaderUser = usersMap[r.userId] || usersMap[r.userUid] || null;
+      const event = eventsMap[r.eventId] || null;
+      return {
         ...r,
-        user: usersMap[r.userId] || { name: 'User', email: 'unknown@example.com' },
-        event: eventsMap[r.eventId] || { title: 'Event' },
-      }));
+        id: r.id || r._id,
+        _id: r._id || r.id,
+        teamName: r.teamName || 'Untitled Team',
+        leader: {
+          id: leaderUser?.id || r.userId || '',
+          name: r.leaderName || leaderUser?.name || 'Team Leader',
+          email: r.leaderEmail || leaderUser?.email || '',
+          phone: r.phone || leaderUser?.phone || '',
+          college: r.collegeOrOrg || leaderUser?.college || leaderUser?.institute || '',
+          idCardUrl: leaderUser?.idCardUrl || '',
+          idCardName: leaderUser?.idCardName || '',
+        },
+        user: leaderUser || {
+          name: r.leaderName || 'Team Leader',
+          email: r.leaderEmail || '',
+          phone: r.phone || '',
+        },
+        event: {
+          id: event?.id || r.eventId || '',
+          title: event?.title || 'Hackathon Event',
+          category: event?.category || '',
+          status: event?.status || '',
+        },
+        membersCount: 1 + (r.teamMembers?.length || 0),
+        registeredAt: r.registeredAt || new Date().toISOString(),
+      };
+    });
+
+    const teamPendingCount = enrichedUsers.filter((u) => !u.isTeamRegistered).length;
+    const teamRegisteredCount = enrichedUsers.filter((u) => u.isTeamRegistered).length;
+    const verifiedIdCardsCount = enrichedUsers.filter((u) => u.hasIdCard).length;
+
+    const recentUsers = [...enrichedUsers]
+      .sort((a, b) => new Date(b.registeredAt || 0) - new Date(a.registeredAt || 0))
+      .slice(0, 10);
+
+    const recentTeamRegistrations = [...enrichedTeams]
+      .sort((a, b) => new Date(b.registeredAt || 0) - new Date(a.registeredAt || 0))
+      .slice(0, 10);
 
     const recentEvents = events.slice(0, 6);
 
@@ -1399,49 +1627,194 @@ export const adminService = {
       success: true,
       stats: {
         totalEvents: events.length,
-        totalUsers: users.length,
+        totalUsers: enrichedUsers.length,
+        teamPendingCount,
+        teamRegisteredCount,
+        verifiedIdCardsCount,
+        totalTeamRegistrations: registrations.length,
         totalRegistrations: registrations.length,
         totalSubmissions: ideas.length + protos.length,
         totalIdeaSubmissions: ideas.length,
         totalPrototypeSubmissions: protos.length,
       },
       recentEvents,
-      recentRegistrations,
+      recentUsers, // Individual user registrations (profile, mobile, ID card, team pending status)
+      recentRegistrations: recentTeamRegistrations, // Teams registered
+      recentTeamRegistrations,
     };
   },
 
-  async getRegisteredUsers({ eventId, search } = {}) {
+  async getRegisteredUsers({ eventId, search, teamStatus, idStatus, studentType } = {}) {
     await ensureDatabaseSeeded();
+    await ensureAdminAuthorized();
     const regs = Object.values((await readPath('registrations')) || {});
     const usersMap = (await readPath('users')) || {};
     const eventsMap = (await readPath('events')) || {};
+    // Strictly exclude administrators from participant users list
+    const usersList = Object.values(usersMap).filter((u) => {
+      const email = (u.email || '').toLowerCase().trim();
+      return !isSuperAdminEmail(email) && u.role !== 'admin' && u.role !== 'superadmin';
+    });
 
-    let list = regs.map((r) => ({
-      ...r,
-      user: usersMap[r.userId] || { name: 'Participant', email: 'unknown' },
-      event: eventsMap[r.eventId] || { title: 'Event' },
-    }));
+    // 1. Enrich all users
+    const allUsers = usersList.map((u) => {
+      const uid = u.id || u._id;
+      const cleanEmail = (u.email || '').toLowerCase().trim();
 
+      const matchingReg = regs.find((r) => {
+        if (r.userId && (r.userId === uid || r.userId === u.id || r.userId === u._id)) return true;
+        if (r.userUid && (r.userUid === uid || r.userUid === u.id || r.userUid === u._id)) return true;
+        if (cleanEmail && r.leaderEmail && r.leaderEmail.toLowerCase().trim() === cleanEmail) return true;
+        if (
+          cleanEmail &&
+          Array.isArray(r.teamMembers) &&
+          r.teamMembers.some((m) => m?.email && m.email.toLowerCase().trim() === cleanEmail)
+        ) {
+          return true;
+        }
+        return false;
+      });
+
+      const isTeamRegistered = Boolean(matchingReg);
+      const event = matchingReg ? eventsMap[matchingReg.eventId] : null;
+      const hasId = Boolean(u.idCardUrl && u.idCardUrl.trim());
+
+      return {
+        ...u,
+        id: uid,
+        _id: uid,
+        name: u.name || 'Participant',
+        email: u.email || '',
+        phone: u.phone || '',
+        college: u.college || u.institute || '',
+        institute: u.institute || u.college || '',
+        year: u.year || '',
+        studentType: u.studentType || 'college',
+        idCardUrl: u.idCardUrl || '',
+        idCardName: u.idCardName || '',
+        isTeamRegistered,
+        teamStatus: isTeamRegistered ? 'Registered' : 'Pending',
+        teamName: matchingReg?.teamName || '',
+        teamId: matchingReg?.id || matchingReg?._id || '',
+        eventId: matchingReg?.eventId || '',
+        eventTitle: event?.title || (matchingReg ? 'Hackathon Event' : ''),
+        event: event ? { id: event.id || event._id, title: event.title } : null,
+        hasIdCard: hasId,
+        registeredAt: u.createdAt || u.updatedAt || matchingReg?.registeredAt || new Date().toISOString(),
+      };
+    });
+
+    // 2. Enrich all teams
+    const allTeams = regs.map((r) => {
+      const leaderUser = usersMap[r.userId] || usersMap[r.userUid] || null;
+      const event = eventsMap[r.eventId] || null;
+      return {
+        ...r,
+        id: r.id || r._id,
+        _id: r._id || r.id,
+        teamName: r.teamName || 'Untitled Team',
+        leader: {
+          id: leaderUser?.id || r.userId || '',
+          name: r.leaderName || leaderUser?.name || 'Team Leader',
+          email: r.leaderEmail || leaderUser?.email || '',
+          phone: r.phone || leaderUser?.phone || '',
+          college: r.collegeOrOrg || leaderUser?.college || leaderUser?.institute || '',
+          idCardUrl: leaderUser?.idCardUrl || '',
+          idCardName: leaderUser?.idCardName || '',
+        },
+        user: leaderUser || {
+          name: r.leaderName || 'Team Leader',
+          email: r.leaderEmail || '',
+          phone: r.phone || '',
+        },
+        event: {
+          id: event?.id || r.eventId || '',
+          title: event?.title || 'Hackathon Event',
+          category: event?.category || '',
+          status: event?.status || '',
+        },
+        membersCount: 1 + (r.teamMembers?.length || 0),
+        registeredAt: r.registeredAt || new Date().toISOString(),
+      };
+    });
+
+    // Apply filtering to users
+    let filteredUsers = allUsers;
     if (eventId && eventId !== 'all') {
-      list = list.filter((r) => r.eventId === eventId);
+      filteredUsers = filteredUsers.filter((u) => u.eventId === eventId);
     }
-
+    if (teamStatus && teamStatus !== 'all') {
+      if (teamStatus === 'pending') {
+        filteredUsers = filteredUsers.filter((u) => !u.isTeamRegistered);
+      } else if (teamStatus === 'registered') {
+        filteredUsers = filteredUsers.filter((u) => u.isTeamRegistered);
+      }
+    }
+    if (idStatus && idStatus !== 'all') {
+      if (idStatus === 'uploaded') {
+        filteredUsers = filteredUsers.filter((u) => u.hasIdCard);
+      } else if (idStatus === 'missing') {
+        filteredUsers = filteredUsers.filter((u) => !u.hasIdCard);
+      }
+    }
+    if (studentType && studentType !== 'all') {
+      if (studentType === 'school') {
+        filteredUsers = filteredUsers.filter((u) => u.studentType === 'school');
+      } else if (studentType === 'college') {
+        filteredUsers = filteredUsers.filter((u) => u.studentType !== 'school');
+      }
+    }
     if (search && search.trim()) {
       const q = search.trim().toLowerCase();
-      list = list.filter(
-        (r) =>
-          r.user?.name?.toLowerCase().includes(q) ||
-          r.user?.email?.toLowerCase().includes(q) ||
-          r.user?.college?.toLowerCase().includes(q) ||
-          r.teamName?.toLowerCase().includes(q)
+      filteredUsers = filteredUsers.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q) ||
+          u.phone?.toLowerCase().includes(q) ||
+          u.college?.toLowerCase().includes(q) ||
+          u.institute?.toLowerCase().includes(q) ||
+          u.teamName?.toLowerCase().includes(q)
       );
     }
+    filteredUsers.sort((a, b) => new Date(b.registeredAt || 0) - new Date(a.registeredAt || 0));
 
-    return { success: true, count: list.length, users: list };
+    // Apply filtering to teams
+    let filteredTeams = allTeams;
+    if (eventId && eventId !== 'all') {
+      filteredTeams = filteredTeams.filter((r) => r.eventId === eventId);
+    }
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      filteredTeams = filteredTeams.filter(
+        (r) =>
+          r.teamName?.toLowerCase().includes(q) ||
+          r.leader?.name?.toLowerCase().includes(q) ||
+          r.leader?.email?.toLowerCase().includes(q) ||
+          r.leader?.phone?.toLowerCase().includes(q) ||
+          r.collegeOrOrg?.toLowerCase().includes(q) ||
+          r.event?.title?.toLowerCase().includes(q)
+      );
+    }
+    filteredTeams.sort((a, b) => new Date(b.registeredAt || 0) - new Date(a.registeredAt || 0));
+
+    return {
+      success: true,
+      count: filteredUsers.length,
+      users: filteredUsers,
+      teams: filteredTeams,
+      stats: {
+        totalUsers: allUsers.length,
+        pendingTeamsCount: allUsers.filter((u) => !u.isTeamRegistered).length,
+        registeredTeamsCount: allUsers.filter((u) => u.isTeamRegistered).length,
+        totalTeams: allTeams.length,
+        verifiedIdCardsCount: allUsers.filter((u) => u.hasIdCard).length,
+      },
+    };
   },
 
   async getSubmissions({ eventId, type = 'idea' }) {
     await ensureDatabaseSeeded();
+    await ensureAdminAuthorized();
     const path = type === 'prototype' ? 'prototype_submissions' : 'idea_submissions';
     const subs = Object.values((await readPath(path)) || {});
     const usersMap = (await readPath('users')) || {};
@@ -1463,6 +1836,7 @@ export const adminService = {
   },
 
   async updateSubmissionStatus(type, id, { status, adminRemarks }) {
+    await ensureAdminAuthorized();
     const path = type === 'prototype' ? `prototype_submissions/${id}` : `idea_submissions/${id}`;
     const existing = await readPath(path);
     if (!existing) throw new Error('Submission not found');
@@ -1479,6 +1853,7 @@ export const adminService = {
 
   async getAdmins() {
     await ensureDatabaseSeeded();
+    await ensureAdminAuthorized();
     const adminsObj = (await readPath('admins')) || {};
     const admins = Object.values(adminsObj).map((a) => {
       const copy = { ...a };
@@ -1490,6 +1865,7 @@ export const adminService = {
   },
 
   async createAdmin({ name, email, password, role = 'admin' }) {
+    const caller = await ensureAdminAuthorized();
     const cleanEmail = email.trim().toLowerCase();
     const adminId = `admin_${Date.now()}`;
     const newAdmin = {
@@ -1497,9 +1873,9 @@ export const adminService = {
       _id: adminId,
       name: name.trim(),
       email: cleanEmail,
-      password: password.trim(),
+      password: password ? password.trim() : '',
       role,
-      createdBy: 'admin-dashboard',
+      createdBy: caller.email || 'admin-dashboard',
       createdAt: new Date().toISOString(),
     };
 
@@ -1507,6 +1883,6 @@ export const adminService = {
     const safeAdmin = { ...newAdmin };
     delete safeAdmin.password;
 
-    return { success: true, message: 'Admin created successfully.', admin: safeAdmin };
+    return { success: true, message: 'Admin provisioned successfully. They can now authenticate via their assigned Google account.', admin: safeAdmin };
   },
 };

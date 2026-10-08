@@ -26,7 +26,7 @@ export default function AdminLayout() {
   const menuItems = [
     { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { label: 'Manage Events', path: '/admin/events', icon: CalendarDays },
-    { label: 'Registered Users', path: '/admin/users', icon: Users },
+    { label: 'Registrations & Teams', path: '/admin/users', icon: Users },
     { label: 'Problem Statements', path: '/admin/problem-statements', icon: FileQuestion },
     { label: 'Schedule Controls', path: '/admin/schedule', icon: Clock },
     { label: 'Submissions', path: '/admin/submissions', icon: Send },

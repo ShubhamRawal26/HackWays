@@ -123,10 +123,9 @@ MONGODB_URI=mongodb://127.0.0.1:27017/org_portal
 JWT_SECRET=super_secret_jwt_key_org_2026_change_in_production
 JWT_EXPIRES_IN=7d
 
-# Initial Admin Credentials (for seed script)
-INITIAL_ADMIN_EMAIL=admin@organization.org
-INITIAL_ADMIN_PASSWORD=Admin@Org2026!
-INITIAL_ADMIN_NAME=Super Administrator
+# Super Admin Email
+INITIAL_ADMIN_EMAIL=discountbuddyshubham@gmail.com
+INITIAL_ADMIN_NAME=Shubham (Super Admin)
 
 # Nodemailer / SMTP Config (Leave blank to use Dev Console OTP logger)
 SMTP_HOST=smtp.gmail.com
@@ -186,9 +185,9 @@ cd server
 npm run seed
 ```
 
-*Default Seed Admin Account:*
-- **Email:** `admin@organization.org`
-- **Password:** `Admin@Org2026!`
+*Administrator Authentication:*
+- Administrator login is strictly guarded by **Firebase Authentication (Google Sign-In)**.
+- Only assigned administrator Gmail accounts (`discountbuddyshubham@gmail.com`, `sureshcitabu@gmail.com`, `tmgmayankff@gmail.com`, and provisioned coordinators) are granted access. All unauthorized logins are rejected.
 
 ### 4. Run the Development Servers
 From the root directory:

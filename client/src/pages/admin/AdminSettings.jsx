@@ -37,8 +37,8 @@ export default function AdminSettings() {
 
   const handleCreateAdmin = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password) {
-      showError('All fields are required.');
+    if (!name || !email) {
+      showError('Administrator name and official Google email address are required.');
       return;
     }
 
@@ -137,26 +137,31 @@ export default function AdminSettings() {
           </div>
 
           <div>
-            <label className="block font-semibold text-dark mb-1 uppercase tracking-wide">Email Address</label>
+            <label className="block font-semibold text-dark mb-1 uppercase tracking-wide">
+              Official Admin Google / Gmail Address <span className="text-red-500">*</span>
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="marcus@organization.org"
+              placeholder="coordinator@gmail.com"
               className="input-field text-xs"
             />
+            <p className="text-[10px] text-dark-muted mt-1">
+              Admin must sign in with this exact Google account using Firebase Authentication.
+            </p>
           </div>
 
           <div>
-            <label className="block font-semibold text-dark mb-1 uppercase tracking-wide">Initial Password</label>
+            <label className="block font-semibold text-dark mb-1 uppercase tracking-wide">
+              Initial Password (Optional / Fallback)
+            </label>
             <input
               type="password"
-              required
-              minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 6 characters"
+              placeholder="Optional secondary password"
               className="input-field text-xs"
             />
           </div>

@@ -15,28 +15,22 @@ const seedData = async () => {
       RESTART IDENTITY CASCADE;
     `);
 
-    // 1. Create Super Admin
-    const adminEmail = process.env.INITIAL_ADMIN_EMAIL || 'admin@organization.org';
-    const adminPassword = process.env.INITIAL_ADMIN_PASSWORD || 'Admin@Org2026!';
-    const adminName = process.env.INITIAL_ADMIN_NAME || 'Super Administrator';
+    // 1. Create Super Admins (Official Assigned Gmail Accounts)
+    const SUPER_ADMINS = [
+      { name: 'Shubham (Super Admin)', email: 'discountbuddyshubham@gmail.com' },
+      { name: 'Suresh CIT (Super Admin)', email: 'sureshcitabu@gmail.com' },
+      { name: 'Mayank (Super Admin)', email: 'tmgmayankff@gmail.com' },
+    ];
 
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    const { rows: adminRows } = await query(
-      `INSERT INTO admins (name, email, password, role, created_by)
-       VALUES ($1, $2, $3, 'superadmin', 'seed-script')
-       RETURNING *`,
-      [adminName, adminEmail.toLowerCase().trim(), hashedPassword]
-    );
-    console.log(`✓ Admin account created: ${adminRows[0].email} / ${adminPassword}`);
-
-    // 2. Create Sample User
-    const { rows: userRows } = await query(
-      `INSERT INTO users (name, email, phone, college, is_verified)
-       VALUES ($1, $2, $3, $4, true)
-       RETURNING *`,
-      ['Alex Johnson', 'alex.johnson@example.com', '9876543210', 'National Institute of Technology']
-    );
-    console.log(`✓ Sample user created: ${userRows[0].email}`);
+    for (const sa of SUPER_ADMINS) {
+      await query(
+        `INSERT INTO admins (name, email, role, created_by)
+         VALUES ($1, $2, 'superadmin', 'system-rule')
+         ON CONFLICT (email) DO NOTHING`,
+        [sa.name, sa.email.toLowerCase().trim()]
+      );
+      console.log(`✓ Super Admin account verified: ${sa.email}`);
+    }
 
     // 3. Create Sample Events
     const now = new Date();

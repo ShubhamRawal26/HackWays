@@ -785,37 +785,41 @@ export default function StudentDashboardPage() {
                       </div>
 
                       {/* Members 2, 3, 4 */}
-                      {(registration.teamMembers && registration.teamMembers.length > 1
-                        ? registration.teamMembers.slice(1)
-                        : [
-                            { name: 'Member 2', email: 'member2@example.com', phone: 'Verified', role: 'Member 2' },
-                            { name: 'Member 3', email: 'member3@example.com', phone: 'Verified', role: 'Member 3' },
-                            { name: 'Member 4', email: 'member4@example.com', phone: 'Verified', role: 'Member 4' },
-                          ]
-                      ).map((m, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-white rounded-2xl p-5 border border-accent/15 shadow-2xs space-y-2"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider bg-accent/10 text-accent px-2 py-0.5 rounded-full">
-                              Member {idx + 2}
-                            </span>
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      {Array.isArray(registration.teamMembers) && registration.teamMembers.length > 1 ? (
+                        registration.teamMembers.slice(1).map((m, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-white rounded-2xl p-5 border border-accent/15 shadow-2xs space-y-2"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold uppercase tracking-wider bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                                Member {idx + 2}
+                              </span>
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div className="font-extrabold text-base text-primary truncate">
+                              {m.name || `Member ${idx + 2}`}
+                            </div>
+                            <p className="text-xs text-dark-muted truncate flex items-center gap-1.5">
+                              <Mail className="w-3.5 h-3.5 text-accent/60 shrink-0" />
+                              <span className="truncate">{m.email || 'Email registered'}</span>
+                            </p>
+                            <p className="text-xs text-dark-muted truncate flex items-center gap-1.5">
+                              <Phone className="w-3.5 h-3.5 text-accent/60 shrink-0" />
+                              <span>{m.phone || 'Phone registered'}</span>
+                            </p>
                           </div>
-                          <div className="font-extrabold text-base text-primary truncate">
-                            {m.name || `Member ${idx + 2}`}
-                          </div>
-                          <p className="text-xs text-dark-muted truncate flex items-center gap-1.5">
-                            <Mail className="w-3.5 h-3.5 text-accent/60 shrink-0" />
-                            <span className="truncate">{m.email || 'Email verified'}</span>
+                        ))
+                      ) : (
+                        <div className="col-span-full bg-white rounded-2xl p-5 border border-dashed border-accent/20 text-center py-6">
+                          <p className="text-xs font-semibold text-dark">
+                            Solo Participant (1 of 4 Members)
                           </p>
-                          <p className="text-xs text-dark-muted truncate flex items-center gap-1.5">
-                            <Phone className="w-3.5 h-3.5 text-accent/60 shrink-0" />
-                            <span>{m.phone || 'Phone verified'}</span>
+                          <p className="text-[11px] text-dark-muted mt-1">
+                            You can add up to 3 more teammates by clicking "Edit Team" above.
                           </p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
 

@@ -43,6 +43,9 @@ const api = {
       const data = await adminService.getRegisteredUsers({
         eventId: params.get('eventId'),
         search: params.get('search'),
+        teamStatus: params.get('teamStatus'),
+        idStatus: params.get('idStatus'),
+        studentType: params.get('studentType'),
       });
       return { data };
     }
@@ -153,6 +156,10 @@ const api = {
     }
     if (path === '/auth/admin-login') {
       const data = await authService.adminLogin(body);
+      return { data };
+    }
+    if (path === '/auth/admin-google-login') {
+      const data = await authService.adminLoginWithGoogle();
       return { data };
     }
 
